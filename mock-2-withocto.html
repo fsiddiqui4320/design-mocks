@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>withocto.co — AI Lead Response for Real Estate</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafaf8;
+  --bg-alt: #f4f3ef;
+  --navy: #0f1f3d;
+  --navy-mid: #2a3f6b;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --light: #9ca3af;
+  --coral: #e85d3a;
+  --coral-light: rgba(232,93,58,0.08);
+  --border: #e5e3de;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250,250,248,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 48px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--navy);
+  text-decoration: none;
+  letter-spacing: -0.03em;
+}
+
+.nav-logo span { color: var(--coral); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--navy); }
+
+.nav-cta {
+  background: var(--navy);
+  color: #fff !important;
+  padding: 9px 22px;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: 2px;
+  transition: background 0.2s !important;
+}
+
+.nav-cta:hover { background: var(--navy-mid) !important; }
+
+/* ── HERO ── */
+.hero {
+  padding: 100px 48px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--coral-light);
+  border: 1px solid rgba(232,93,58,0.2);
+  color: var(--coral);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-bottom: 28px;
+  width: fit-content;
+  opacity: 0;
+  animation: slideIn 0.5s ease 0.1s forwards;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--coral);
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: clamp(42px, 4.8vw, 66px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: slideIn 0.6s ease 0.25s forwards;
+
+  /* Gradient text */
+  background: linear-gradient(135deg, #0f1f3d 0%, #1e3a72 45%, #e85d3a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h1 em {
+  font-style: italic;
+  font-weight: 800;
+  /* Override gradient — em gets coral only */
+  background: linear-gradient(135deg, #e85d3a 0%, #d94e2b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 440px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: slideIn 0.6s ease 0.4s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: slideIn 0.6s ease 0.55s forwards;
+}
+
+.btn-primary {
+  background: var(--navy);
+  color: #fff;
+  padding: 13px 26px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 2px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+.btn-outline {
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 2px;
+  text-decoration: none;
+  display: inline-block;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-outline:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ── HERO VISUAL / DEMO WINDOW ── */
+.hero-visual {
+  opacity: 0;
+  animation: slideIn 0.7s ease 0.5s forwards;
+}
+
+.hero-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(15,31,61,0.06), 0 1px 4px rgba(15,31,61,0.04);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.01em;
+}
+
+.card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #16a34a;
+  background: rgba(22,163,74,0.08);
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.lead-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.lead-row:last-child { border-bottom: none; }
+
+.lead-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.av1 { background: #3b82f6; }
+.av2 { background: #8b5cf6; }
+.av3 { background: #f59e0b; }
+
+.lead-info { flex: 1; }
+
+.lead-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+
+.lead-msg {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.lead-time {
+  font-size: 11px;
+  color: var(--light);
+  white-space: nowrap;
+}
+
+.octo-reply {
+  margin-top: 16px;
+  background: var(--bg-alt);
+  border-left: 3px solid var(--coral);
+  padding: 12px 16px;
+  border-radius: 0 4px 4px 0;
+}
+
+.octo-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--coral);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.octo-text {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.reply-time {
+  font-size: 11px;
+  color: var(--light);
+  margin-top: 6px;
+}
+
+/* ── SOCIAL PROOF STRIP ── */
+.proof-strip {
+  background: var(--navy);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.proof-stat { text-align: center; }
+
+.proof-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 40px;
+  color: #fff;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.proof-num span { color: var(--coral); }
+
+.proof-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.proof-divider {
+  width: 1px;
+  height: 48px;
+  background: rgba(255,255,255,0.12);
+}
+
+/* ── FEATURES ── */
+.features-section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 3.5vw, 50px);
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin-bottom: 16px;
+
+  background: linear-gradient(135deg, #0f1f3d 0%, #1e3a72 50%, #2a5298 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 em {
+  font-style: italic;
+  background: linear-gradient(135deg, #e85d3a 0%, #d94e2b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-sub {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 480px;
+  line-height: 1.75;
+  margin-bottom: 64px;
+  /* override gradient on regular text */
+  background: none;
+  -webkit-text-fill-color: var(--muted);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: var(--border);
+}
+
+.feature-card {
+  background: var(--bg);
+  padding: 48px 44px;
+  transition: background 0.25s;
+}
+
+.feature-card:hover { background: #fff; }
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--coral-light);
+  border: 1px solid rgba(232,93,58,0.15);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  font-size: 20px;
+}
+
+.feature-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--navy);
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+}
+
+.feature-body {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--coral);
+  text-decoration: none;
+  transition: gap 0.2s;
+}
+
+.feature-link:hover { gap: 10px; }
+
+/* ── TESTIMONIAL ── */
+.testimonial-section {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 100px 48px;
+  text-align: center;
+}
+
+.testimonial-quote {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(20px, 2.4vw, 32px);
+  color: var(--navy);
+  max-width: 720px;
+  margin: 0 auto 32px;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+}
+
+.testimonial-attr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.attr-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.attr-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.attr-title {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── PRICING ── */
+.pricing-section {
+  padding: 100px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.pricing-text h2 { margin-bottom: 16px; }
+.pricing-text p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 32px;
+  background: none;
+  -webkit-text-fill-color: var(--muted);
+}
+
+.pricing-card {
+  background: var(--navy);
+  padding: 44px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.pricing-tier {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 20px;
+}
+
+.pricing-amount {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.price-dollar {
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  padding-top: 10px;
+}
+
+.price-number {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 68px;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: #fff;
+}
+
+.price-period {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  align-self: flex-end;
+  padding-bottom: 10px;
+}
+
+.pricing-features {
+  list-style: none;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pricing-features li {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pricing-features li::before {
+  content: '✓';
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.btn-coral {
+  background: var(--coral);
+  color: #fff;
+  padding: 14px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 2px;
+  text-decoration: none;
+  display: block;
+  transition: opacity 0.2s;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-coral:hover { opacity: 0.88; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.5);
+  padding: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-logo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: -0.025em;
+}
+
+.footer-logo span { color: var(--coral); }
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: rgba(255,255,255,0.8); }
+
+.footer-copy { font-size: 13px; }
+
+/* ── ANIMATIONS ── */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+
+  .hero { padding: 60px 24px 64px; grid-template-columns: 1fr; gap: 48px; }
+  .proof-strip { padding: 40px 24px; justify-content: center; }
+  .proof-divider { display: none; }
+  .features-section { padding: 80px 24px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .testimonial-section { padding: 72px 24px; }
+  .pricing-section { padding: 80px 24px; grid-template-columns: 1fr; gap: 48px; }
+  footer { padding: 40px 24px; flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY NAV -->
+<nav>
+  <a href="#" class="nav-logo">withocto<span>.</span>co</a>
+  <ul class="nav-links">
+    <li><a href="#">How it works</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Case studies</a></li>
+    <li><a href="#">Blog</a></li>
+    <li><a href="#" class="nav-cta">Book a demo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section style="max-width:1200px;margin:0 auto;">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">Now in private beta</div>
+      <h1>Your best agent<br>responds in <em>90 seconds.</em></h1>
+      <p class="hero-sub">Real estate teams lose deals to slow follow-up. Octo reads every inbound lead, crafts a response in your voice, and keeps the conversation warm until your agent takes over.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary">Book a demo →</a>
+        <a href="#" class="btn-outline">See a sample response</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="card-header">
+          <span class="card-title">Live Inbox — Today</span>
+          <span class="card-badge">● 3 new leads</span>
+        </div>
+        <div class="lead-row">
+          <div class="lead-avatar av1">JM</div>
+          <div class="lead-info">
+            <div class="lead-name">James Morrison</div>
+            <div class="lead-msg">"Interested in the 3BR on Maple. What's the ask?"</div>
+          </div>
+          <div class="lead-time">2m ago</div>
+        </div>
+        <div class="octo-reply">
+          <div class="octo-label">🐙 Octo replied</div>
+          <div class="octo-text">"Hi James! Great timing — that home just had an offer fall through. I'd love to set up a quick walkthrough for you. Are you free Thursday or Friday afternoon?"</div>
+          <div class="reply-time">Replied 47s ago</div>
+        </div>
+        <div class="lead-row" style="margin-top:16px;">
+          <div class="lead-avatar av2">SR</div>
+          <div class="lead-info">
+            <div class="lead-name">Sofia Reyes</div>
+            <div class="lead-msg">"Looking for something under $400k, 2+ bed, near schools"</div>
+          </div>
+          <div class="lead-time">18m ago</div>
+        </div>
+        <div class="lead-row">
+          <div class="lead-avatar av3">TK</div>
+          <div class="lead-info">
+            <div class="lead-name">Tyler Kim</div>
+            <div class="lead-msg">"Saw your listing on Zillow — still available?"</div>
+          </div>
+          <div class="lead-time">1h ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF STRIP -->
+<div class="proof-strip">
+  <div class="proof-stat">
+    <div class="proof-num">94<span>%</span></div>
+    <div class="proof-label">Lead response rate</div>
+  </div>
+  <div class="proof-divider"></div>
+  <div class="proof-stat">
+    <div class="proof-num">47<span>s</span></div>
+    <div class="proof-label">Avg. first response</div>
+  </div>
+  <div class="proof-divider"></div>
+  <div class="proof-stat">
+    <div class="proof-num">3.2<span>×</span></div>
+    <div class="proof-label">More qualified showings</div>
+  </div>
+  <div class="proof-divider"></div>
+  <div class="proof-stat">
+    <div class="proof-num">200<span>+</span></div>
+    <div class="proof-label">Teams in beta</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="reveal">
+    <p class="section-eyebrow">The platform</p>
+    <h2>Everything your<br><em>agents need</em> to close.</h2>
+    <p class="section-sub">Octo works in the background — reading leads, qualifying intent, and keeping every conversation warm until a human takes over.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">📬</div>
+      <div class="feature-title">Instant Lead Response</div>
+      <p class="feature-body">Octo reads every inbound inquiry — Zillow, Realtor.com, your website, email — and responds within 60 seconds in your agent's voice.</p>
+      <a href="#" class="feature-link">See sample responses →</a>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.1s">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">Intent Qualification</div>
+      <p class="feature-body">Not all leads are equal. Octo scores each conversation and surfaces the high-intent buyers and sellers your team should call first.</p>
+      <a href="#" class="feature-link">How scoring works →</a>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.05s">
+      <div class="feature-icon">🔄</div>
+      <div class="feature-title">Warm Handoff</div>
+      <p class="feature-body">When a lead is ready to talk, Octo notifies your agent with the full conversation summary, lead score, and suggested next steps.</p>
+      <a href="#" class="feature-link">View handoff flow →</a>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.15s">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Pipeline Analytics</div>
+      <p class="feature-body">Weekly reports on lead volume, response times, conversion rates, and which sources are actually producing closed deals.</p>
+      <a href="#" class="feature-link">Sample dashboard →</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial-section">
+  <div class="reveal">
+    <p class="testimonial-quote">"We were losing leads at 11pm because no one was awake to respond. Octo handles the overnight traffic and our Monday pipeline is fuller than it's ever been."</p>
+    <div class="testimonial-attr">
+      <div class="attr-avatar">DL</div>
+      <div>
+        <div class="attr-name">Dana Lim</div>
+        <div class="attr-title">Broker-Owner, Lim Realty Group · Chicago, IL</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section">
+  <div class="pricing-text reveal">
+    <p class="section-eyebrow">Pricing</p>
+    <h2>Simple, flat<br><em>pricing.</em> No surprises.</h2>
+    <p>One price for your whole team. Unlimited leads, unlimited responses, no per-seat nonsense. Cancel anytime — but you won't want to.</p>
+    <a href="#" class="btn-primary">See full pricing →</a>
+  </div>
+  <div class="pricing-card reveal">
+    <div class="pricing-tier">Team plan</div>
+    <div class="pricing-amount">
+      <span class="price-dollar">$</span>
+      <span class="price-number">399</span>
+      <span class="price-period">/month</span>
+    </div>
+    <ul class="pricing-features">
+      <li>Unlimited lead responses</li>
+      <li>Up to 10 agent profiles</li>
+      <li>All lead sources connected</li>
+      <li>Intent scoring + analytics</li>
+      <li>Priority support (2h response)</li>
+    </ul>
+    <a href="#" class="btn-coral">Start free 14-day trial</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">withocto<span>.</span>co</div>
+  <ul class="footer-links">
+    <li><a href="#">Product</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 withocto, Inc.</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX — Know What to Build Next</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #060606;
+  --surface:  #0d0d0d;
+  --surface2: #111111;
+  --border:   rgba(255,255,255,0.07);
+  --text:     #f2f2f0;
+  --muted:    #555550;
+  --mid:      #888880;
+  --teal:     #06b6d4;
+  --amber:    #f59e0b;
+  --rose:     #f43f5e;
+  --teal-dim: rgba(6,182,212,0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* Fine grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── NAV — minimal, top corners only ─── */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  padding: 28px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  mix-blend-mode: normal;
+}
+
+.nav-logo {
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(242,242,240,0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-logo:hover { color: var(--text); }
+
+.nav-cta {
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(242,242,240,0.6);
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.nav-cta:hover {
+  border-color: rgba(255,255,255,0.4);
+  color: var(--text);
+}
+
+/* ─── HERO — THE BIG WORD ─── */
+.hero-viewport {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 24px 80px;
+}
+
+/* Faint radial atmosphere behind the word */
+.hero-viewport::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  width: 900px;
+  height: 600px;
+  background: radial-gradient(ellipse,
+    rgba(6,182,212,0.07) 0%,
+    rgba(245,158,11,0.04) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Horizontal rule at top — framing device */
+.hero-rule-top {
+  position: absolute;
+  top: 88px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+/* The single word — fills the viewport */
+.hero-word {
+  font-size: clamp(120px, 22vw, 360px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.88;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+
+  /* The gradient — ice white → electric teal → warm amber */
+  background: linear-gradient(
+    128deg,
+    #e8f8ff 0%,
+    #a5e8f5 18%,
+    #06b6d4 42%,
+    #0ea5e9 58%,
+    #f59e0b 82%,
+    #fcd34d 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  opacity: 0;
+  animation: wordReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+@keyframes wordReveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Below word — tagline + CTAs */
+.hero-below {
+  position: relative;
+  z-index: 1;
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  text-align: center;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.65s forwards;
+}
+
+.hero-tagline {
+  font-size: 18px;
+  color: var(--mid);
+  font-weight: 400;
+  max-width: 440px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+.hero-tagline strong {
+  color: rgba(242,242,240,0.85);
+  font-weight: 600;
+}
+
+.hero-ctas {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-teal {
+  background: var(--teal);
+  color: #000;
+  padding: 13px 28px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-teal:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.btn-line {
+  border: 1px solid var(--border);
+  color: var(--mid);
+  padding: 12px 26px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-line:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 1.1s forwards;
+}
+
+.scroll-word {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--muted), transparent);
+  animation: scrollPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ─── TICKER STRIP ─── */
+.ticker-strip {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0;
+  overflow: hidden;
+  background: var(--surface);
+  position: relative;
+}
+
+.ticker-inner {
+  display: flex;
+  gap: 0;
+  animation: ticker 24s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 28px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.ticker-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--teal);
+  flex-shrink: 0;
+}
+
+/* ─── STAT ROW ─── */
+.stat-row {
+  padding: 80px 64px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+
+.stat-cell {
+  background: var(--bg);
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: background 0.25s;
+}
+
+.stat-cell:hover { background: var(--surface); }
+
+.stat-big {
+  font-size: 54px;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  color: var(--text);
+}
+
+.stat-accent { color: var(--teal); }
+.stat-accent-amber { color: var(--amber); }
+
+.stat-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* ─── PRODUCT SCREENSHOT ─── */
+.product-section {
+  padding: 0 64px 120px;
+}
+
+.product-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 48px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.section-h2 {
+  font-size: clamp(30px, 3vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+
+  background: linear-gradient(135deg, #f2f2f0 0%, #a5e8f5 40%, #06b6d4 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-sub {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 320px;
+  text-align: right;
+  line-height: 1.75;
+}
+
+/* The app mockup — with slight perspective tilt */
+.product-frame {
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 24px 80px rgba(0,0,0,0.8),
+    0 4px 16px rgba(0,0,0,0.5);
+  transform: perspective(1400px) rotateX(3deg);
+  transform-origin: center bottom;
+  transition: transform 0.5s ease;
+}
+
+.product-frame:hover {
+  transform: perspective(1400px) rotateX(0deg);
+}
+
+/* Window chrome */
+.product-chrome {
+  background: #080808;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cd-r { background: #ff5f57; }
+.cd-y { background: #ffbd2e; }
+.cd-g { background: #28ca42; }
+
+.chrome-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 16px;
+}
+
+.chrome-tab {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 5px 14px;
+  border-radius: 4px 4px 0 0;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.chrome-tab.active {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+/* App layout inside frame */
+.product-body {
+  display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  min-height: 480px;
+}
+
+/* Signals sidebar */
+.prod-sidebar {
+  background: #070707;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 20px 0;
+}
+
+.prod-sidebar-header {
+  padding: 0 18px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: 12px;
+}
+
+.prod-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.prod-sidebar-item.active {
+  color: var(--text);
+  background: rgba(6,182,212,0.07);
+}
+
+.prod-sb-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+.prod-sidebar-item.active .prod-sb-dot { background: var(--teal); }
+
+.prod-sb-count {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(6,182,212,0.7);
+}
+
+/* Main signals panel */
+.prod-main {
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+.prod-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.prod-main-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.prod-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-chip {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.filter-chip.active {
+  background: var(--teal-dim);
+  color: var(--teal);
+  border: 1px solid rgba(6,182,212,0.2);
+}
+
+.filter-chip:not(.active) {
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+
+/* Signal cards */
+.signal-list {
+  padding: 8px 0;
+}
+
+.signal-card {
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.signal-card:hover { background: rgba(255,255,255,0.02); }
+.signal-card.pinned { border-left: 2px solid var(--teal); padding-left: 20px; }
+
+.signal-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.signal-theme {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.signal-score {
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.score-hi { color: #22c55e; }
+.score-mid { color: var(--amber); }
+.score-lo { color: var(--muted); }
+
+.signal-quote {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.55;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.signal-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signal-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+}
+
+.tag-feature { background: rgba(6,182,212,0.1); color: var(--teal); }
+.tag-bug  { background: rgba(244,63,94,0.1); color: var(--rose); }
+.tag-ux   { background: rgba(245,158,11,0.1); color: var(--amber); }
+
+.signal-count {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Insights panel — right side */
+.prod-panel {
+  background: #080808;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  padding: 18px;
+}
+
+.panel-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 16px;
+}
+
+.insight-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  padding: 14px;
+  margin-bottom: 8px;
+}
+
+.insight-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+
+.insight-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+}
+
+.insight-text strong {
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+
+/* Priority meter */
+.priority-meter {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.meter-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 10px;
+}
+
+.meter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.meter-name {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  min-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meter-bar-bg {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.meter-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+}
+
+.fill-teal { background: var(--teal); }
+.fill-amber { background: var(--amber); }
+.fill-rose { background: var(--rose); }
+
+.meter-pct {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  min-width: 28px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── ALTERNATING FEATURES ─── */
+.alt-features {
+  padding: 0 0 120px;
+}
+
+.alt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+  min-height: 260px;
+}
+
+.alt-row:nth-child(even) .alt-left { order: 2; }
+.alt-row:nth-child(even) .alt-right { order: 1; }
+
+.alt-left {
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+}
+
+.alt-right {
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--surface);
+}
+
+.alt-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+
+.alt-h3 {
+  font-size: clamp(22px, 2.4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.alt-body {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.85;
+  max-width: 420px;
+}
+
+/* Visual element in alt right panels */
+.alt-visual {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stacked signal quote cards */
+.quote-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.quote-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  position: relative;
+}
+
+.quote-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.quote-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quote-source {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.quote-priority {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+}
+
+.qp-high { background: rgba(22,197,94,0.1); color: #22c55e; }
+.qp-med  { background: rgba(245,158,11,0.1); color: var(--amber); }
+
+/* Score circle visual */
+.score-circles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+.score-circle-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.ring-svg { transform: rotate(-90deg); }
+
+.ring-circle-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 3; }
+.ring-circle-fill { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+
+.score-ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.score-circle-name {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ─── FINAL CTA — full-width dark ─── */
+.final-cta {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 120px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Big decorative text behind */
+.final-cta::before {
+  content: 'APEX';
+  position: absolute;
+  font-size: clamp(200px, 30vw, 480px);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  color: rgba(255,255,255,0.02);
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  user-select: none;
+}
+
+.final-cta-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.final-cta-h2 {
+  font-size: clamp(36px, 5vw, 80px);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.0;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+
+  background: linear-gradient(135deg, #e8f8ff 0%, #06b6d4 45%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.final-cta-sub {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 480px;
+  line-height: 1.75;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.final-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.final-note {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 36px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-logo {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(242,242,240,0.5);
+  text-decoration: none;
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.footer-links a {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--text); }
+
+.footer-copy { font-size: 12px; color: var(--muted); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── MOBILE ─── */
+@media (max-width: 900px) {
+  nav { padding: 24px 24px; }
+
+  .hero-viewport { padding: 100px 24px 80px; }
+
+  .ticker-strip { display: none; }
+
+  .stat-row { grid-template-columns: 1fr 1fr; padding: 0; }
+  .stat-cell { padding: 32px 24px; }
+
+  .product-section { padding: 0 24px 80px; }
+  .product-label-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .section-sub { text-align: left; }
+  .product-body { grid-template-columns: 1fr; }
+  .prod-sidebar { display: none; }
+  .prod-panel { display: none; }
+
+  .alt-features { padding: 0 0 80px; }
+  .alt-row { grid-template-columns: 1fr; }
+  .alt-row:nth-child(even) .alt-left { order: 0; }
+  .alt-row:nth-child(even) .alt-right { order: 1; }
+  .alt-left { padding: 40px 24px; border-right: none; }
+  .alt-right { padding: 40px 24px; }
+
+  .final-cta { padding: 80px 24px; }
+  .final-cta::before { font-size: 140px; }
+
+  footer { padding: 32px 24px; flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAV
+════════════════════════════════════════════ -->
+<nav>
+  <a href="#" class="nav-logo">Apex</a>
+  <a href="#" class="nav-cta">Request access</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO — THE OVERSIZED WORD
+════════════════════════════════════════════ -->
+<section class="hero-viewport">
+  <div class="hero-rule-top"></div>
+
+  <!-- THE WORD -->
+  <div class="hero-word" aria-label="APEX">APEX</div>
+
+  <!-- Below word -->
+  <div class="hero-below">
+    <p class="hero-tagline">
+      <strong>Stop guessing what to build next.</strong><br>
+      Apex turns user feedback into ranked product signals — so your team ships what actually matters.
+    </p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-teal">Start free — no card needed</a>
+      <a href="#" class="btn-line">See a live demo →</a>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-word">Scroll</div>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TICKER — scrolling proof strip
+════════════════════════════════════════════ -->
+<div class="ticker-strip">
+  <div class="ticker-inner">
+    <!-- First copy -->
+    <div class="ticker-item"><span class="ticker-dot"></span> Signal extraction from any feedback source</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Real-time theme clustering</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Priority scoring powered by usage data</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Connects to Intercom, Zendesk, Slack, G2, App Store</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Weekly briefings for your team</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> No more spreadsheet hell</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Built for product teams that ship fast</div>
+    <!-- Second copy for seamless loop -->
+    <div class="ticker-item"><span class="ticker-dot"></span> Signal extraction from any feedback source</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Real-time theme clustering</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Priority scoring powered by usage data</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Connects to Intercom, Zendesk, Slack, G2, App Store</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Weekly briefings for your team</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> No more spreadsheet hell</div>
+    <div class="ticker-item"><span class="ticker-dot"></span> Built for product teams that ship fast</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STATS
+════════════════════════════════════════════ -->
+<div class="stat-row">
+  <div class="stat-cell reveal">
+    <div class="stat-big">12<span class="stat-accent">k</span></div>
+    <div class="stat-desc">Feedback signals processed per team, per month on average.</div>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.08s">
+    <div class="stat-big">3<span class="stat-accent">×</span></div>
+    <div class="stat-desc">Faster sprint planning when teams use Apex signal scores.</div>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.16s">
+    <div class="stat-big">94<span class="stat-accent">%</span></div>
+    <div class="stat-desc">Of PMs say Apex surfaces signals they would have missed.</div>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.24s">
+    <div class="stat-big stat-accent-amber">0</div>
+    <div class="stat-desc">Manual categorization. Apex does the entire taxonomy.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PRODUCT INTERFACE
+════════════════════════════════════════════ -->
+<section class="product-section">
+  <div class="product-label-row reveal">
+    <div>
+      <div class="section-eyebrow" style="margin-bottom:12px">The product</div>
+      <div class="section-h2">Your signal<br>intelligence hub.</div>
+    </div>
+    <div class="section-sub">Everything your team needs to prioritize with confidence — in one clean interface.</div>
+  </div>
+
+  <div class="product-frame reveal" style="transition-delay:0.1s">
+    <!-- Chrome -->
+    <div class="product-chrome">
+      <div class="chrome-dot cd-r"></div>
+      <div class="chrome-dot cd-y"></div>
+      <div class="chrome-dot cd-g"></div>
+      <div class="chrome-tabs">
+        <div class="chrome-tab active">Signals</div>
+        <div class="chrome-tab">Themes</div>
+        <div class="chrome-tab">Roadmap</div>
+        <div class="chrome-tab">Reports</div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="product-body">
+
+      <!-- Left sidebar -->
+      <div class="prod-sidebar">
+        <div class="prod-sidebar-header">Sources</div>
+        <div class="prod-sidebar-item active">
+          <div class="prod-sb-dot"></div>
+          All Signals
+          <span class="prod-sb-count">847</span>
+        </div>
+        <div class="prod-sidebar-item">
+          <div class="prod-sb-dot"></div>
+          Intercom
+        </div>
+        <div class="prod-sidebar-item">
+          <div class="prod-sb-dot"></div>
+          Zendesk
+        </div>
+        <div class="prod-sidebar-item">
+          <div class="prod-sb-dot"></div>
+          Slack #feedback
+        </div>
+        <div class="prod-sidebar-item">
+          <div class="prod-sb-dot"></div>
+          App Store
+        </div>
+        <div class="prod-sidebar-item">
+          <div class="prod-sb-dot"></div>
+          G2 Reviews
+        </div>
+        <div class="prod-sidebar-item">
+          <div class="prod-sb-dot"></div>
+          NPS Responses
+        </div>
+        <div class="prod-sidebar-item" style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.04);padding-top:16px">
+          <div class="prod-sb-dot" style="background:rgba(6,182,212,0.3)"></div>
+          + Add source
+        </div>
+      </div>
+
+      <!-- Main signals panel -->
+      <div class="prod-main">
+        <div class="prod-main-header">
+          <div class="prod-main-title">Top Signals — This Week</div>
+          <div class="prod-filter">
+            <div class="filter-chip active">All</div>
+            <div class="filter-chip">Feature</div>
+            <div class="filter-chip">Bug</div>
+            <div class="filter-chip">UX</div>
+          </div>
+        </div>
+        <div class="signal-list">
+          <div class="signal-card pinned">
+            <div class="signal-top">
+              <div class="signal-theme">Bulk export to CSV / Excel</div>
+              <div class="signal-score score-hi">94 / 100</div>
+            </div>
+            <div class="signal-quote">"I have to manually copy everything out. An export button would save me hours every week."</div>
+            <div class="signal-meta">
+              <div class="signal-tag tag-feature">Feature Request</div>
+              <div class="signal-count">↑ 134 signals</div>
+            </div>
+          </div>
+          <div class="signal-card">
+            <div class="signal-top">
+              <div class="signal-theme">Dashboard loads slowly on large datasets</div>
+              <div class="signal-score score-hi">88 / 100</div>
+            </div>
+            <div class="signal-quote">"Takes 8–12 seconds to load my main view. It was fast when we had less data."</div>
+            <div class="signal-meta">
+              <div class="signal-tag tag-bug">Bug / Performance</div>
+              <div class="signal-count">↑ 91 signals</div>
+            </div>
+          </div>
+          <div class="signal-card">
+            <div class="signal-top">
+              <div class="signal-theme">API rate limits too restrictive for enterprise</div>
+              <div class="signal-score score-mid">72 / 100</div>
+            </div>
+            <div class="signal-quote">"We hit the 1000 req/hr cap constantly. Need at least 5× for our team size."</div>
+            <div class="signal-meta">
+              <div class="signal-tag tag-feature">Feature Request</div>
+              <div class="signal-count">↑ 63 signals</div>
+            </div>
+          </div>
+          <div class="signal-card">
+            <div class="signal-top">
+              <div class="signal-theme">Mobile app onboarding too complex</div>
+              <div class="signal-score score-mid">65 / 100</div>
+            </div>
+            <div class="signal-quote">"Took me 20 minutes to set up on my phone. The desktop is so much easier."</div>
+            <div class="signal-meta">
+              <div class="signal-tag tag-ux">UX Issue</div>
+              <div class="signal-count">↑ 47 signals</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right insights panel -->
+      <div class="prod-panel">
+        <div class="panel-title">Apex Insights</div>
+
+        <div class="insight-card">
+          <div class="insight-label">Top Cluster</div>
+          <div class="insight-text"><strong>Export & data portability</strong> is trending +42% this month. Power users are hitting limits.</div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-label">Action Rec</div>
+          <div class="insight-text">Shipping CSV export would resolve <strong>134 signals</strong> and unblock 3 enterprise renewals.</div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-label">Sentiment</div>
+          <div class="insight-text">Performance complaints up <strong>+28%</strong> vs last month. Correlates with new data migration feature.</div>
+        </div>
+
+        <div class="priority-meter">
+          <div class="meter-label">Priority by theme</div>
+          <div class="meter-row">
+            <div class="meter-name">Export</div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill fill-teal" style="width:94%"></div></div>
+            <div class="meter-pct">94%</div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-name">Performance</div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill fill-amber" style="width:88%"></div></div>
+            <div class="meter-pct">88%</div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-name">API limits</div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill fill-teal" style="width:72%"></div></div>
+            <div class="meter-pct">72%</div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-name">Mobile UX</div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill fill-amber" style="width:65%"></div></div>
+            <div class="meter-pct">65%</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /product-body -->
+  </div><!-- /product-frame -->
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ALTERNATING FEATURE ROWS
+════════════════════════════════════════════ -->
+<section class="alt-features">
+
+  <div class="alt-row reveal">
+    <div class="alt-left">
+      <div class="alt-eyebrow">Signal Extraction</div>
+      <h2 class="alt-h3">Every user<br>voice, captured.</h2>
+      <p class="alt-body">Apex connects to every channel your users talk in — support tickets, reviews, NPS, Slack, social. It reads all of it, strips the noise, and pulls the signal. No tagging, no manual review, no spreadsheets.</p>
+    </div>
+    <div class="alt-right">
+      <div class="alt-visual">
+        <div class="quote-stack">
+          <div class="quote-card">
+            <div class="quote-text">"Honestly the export limitation is a dealbreaker for our finance team. If you can fix that I'd upgrade to enterprise immediately."</div>
+            <div class="quote-footer">
+              <div class="quote-source">Intercom · James M.</div>
+              <div class="quote-priority qp-high">High Priority</div>
+            </div>
+          </div>
+          <div class="quote-card">
+            <div class="quote-text">"5 stars except the bulk operations are missing. Need the CSV export everyone's asking for."</div>
+            <div class="quote-footer">
+              <div class="quote-source">App Store Review</div>
+              <div class="quote-priority qp-high">High Priority</div>
+            </div>
+          </div>
+          <div class="quote-card">
+            <div class="quote-text">"Love the product but has anyone mentioned the loading issue? Our dashboard is super slow."</div>
+            <div class="quote-footer">
+              <div class="quote-source">Slack #feedback</div>
+              <div class="quote-priority qp-med">Med Priority</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alt-row reveal" style="transition-delay:0.1s">
+    <div class="alt-left">
+      <div class="alt-visual">
+        <div class="score-circles">
+          <div class="score-circle-item">
+            <div class="score-ring">
+              <svg class="ring-svg" viewBox="0 0 80 80" width="80" height="80">
+                <circle class="ring-circle-bg" cx="40" cy="40" r="34"/>
+                <circle class="ring-circle-fill" cx="40" cy="40" r="34" stroke="#06b6d4"
+                  stroke-dasharray="213.6" stroke-dashoffset="13"/>
+              </svg>
+              <div class="score-ring-label" style="color:#06b6d4">94</div>
+            </div>
+            <div class="score-circle-name">Export</div>
+          </div>
+          <div class="score-circle-item">
+            <div class="score-ring">
+              <svg class="ring-svg" viewBox="0 0 80 80" width="80" height="80">
+                <circle class="ring-circle-bg" cx="40" cy="40" r="34"/>
+                <circle class="ring-circle-fill" cx="40" cy="40" r="34" stroke="#f59e0b"
+                  stroke-dasharray="213.6" stroke-dashoffset="26"/>
+              </svg>
+              <div class="score-ring-label" style="color:#f59e0b">88</div>
+            </div>
+            <div class="score-circle-name">Perf</div>
+          </div>
+          <div class="score-circle-item">
+            <div class="score-ring">
+              <svg class="ring-svg" viewBox="0 0 80 80" width="80" height="80">
+                <circle class="ring-circle-bg" cx="40" cy="40" r="34"/>
+                <circle class="ring-circle-fill" cx="40" cy="40" r="34" stroke="#06b6d4"
+                  stroke-dasharray="213.6" stroke-dashoffset="60"/>
+              </svg>
+              <div class="score-ring-label" style="color:#06b6d4">72</div>
+            </div>
+            <div class="score-circle-name">API</div>
+          </div>
+          <div class="score-circle-item">
+            <div class="score-ring">
+              <svg class="ring-svg" viewBox="0 0 80 80" width="80" height="80">
+                <circle class="ring-circle-bg" cx="40" cy="40" r="34"/>
+                <circle class="ring-circle-fill" cx="40" cy="40" r="34" stroke="#f43f5e"
+                  stroke-dasharray="213.6" stroke-dashoffset="75"/>
+              </svg>
+              <div class="score-ring-label" style="color:#f43f5e">65</div>
+            </div>
+            <div class="score-circle-name">Mobile</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="alt-right">
+      <div class="alt-eyebrow">Priority Scoring</div>
+      <h2 class="alt-h3">A number for<br>everything.</h2>
+      <p class="alt-body">Every signal gets an Apex Priority Score — a composite of volume, urgency language, churn risk, and revenue impact. Your sprint planning starts with the top 5, not a debate.</p>
+    </div>
+  </div>
+
+  <div class="alt-row reveal" style="transition-delay:0.1s">
+    <div class="alt-left">
+      <div class="alt-eyebrow">Team Briefings</div>
+      <h2 class="alt-h3">Weekly signal<br>digest. Automated.</h2>
+      <p class="alt-body">Every Monday, your team gets a clean briefing: top clusters, emerging trends, anomalies worth watching. No one has to read 800 tickets. Just the summary that matters, delivered on schedule.</p>
+    </div>
+    <div class="alt-right">
+      <div class="alt-visual">
+        <div class="insight-card" style="width:100%;background:rgba(255,255,255,0.02);">
+          <div class="insight-label" style="margin-bottom:12px">Weekly Brief — May 19, 2026</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.12);">
+              <div style="font-size:20px;font-weight:800;color:#06b6d4;letter-spacing:-0.04em;line-height:1">↑42%</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5">Export requests trending. <span style="color:rgba(255,255,255,0.7);font-weight:600">134 signals</span> this week.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);">
+              <div style="font-size:20px;font-weight:800;color:#f59e0b;letter-spacing:-0.04em;line-height:1">↑28%</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5">Performance complaints. Likely tied to <span style="color:rgba(255,255,255,0.7);font-weight:600">v2.4 data migration</span>.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.12);">
+              <div style="font-size:20px;font-weight:800;color:#22c55e;letter-spacing:-0.04em;line-height:1">+12</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5">New 5-star reviews mentioning <span style="color:rgba(255,255,255,0.7);font-weight:600">collaboration features</span>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FINAL CTA
+════════════════════════════════════════════ -->
+<section class="final-cta">
+  <div class="final-cta-eyebrow">Ready when you are</div>
+  <div class="final-cta-h2">Stop guessing.<br>Start shipping.</div>
+  <p class="final-cta-sub">Connect your first feedback source in 4 minutes. Apex starts building your signal map immediately — no setup wizard, no professional services, no 6-week onboarding.</p>
+  <div class="final-cta-actions">
+    <a href="#" class="btn-teal" style="padding:14px 32px;font-size:14px">Start free today</a>
+    <a href="#" class="btn-line" style="padding:13px 30px;font-size:14px">Book a walkthrough</a>
+  </div>
+  <div class="final-note">14-day free trial · No credit card required · Cancel anytime</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer>
+  <a href="#" class="footer-logo">Apex</a>
+  <ul class="footer-links">
+    <li><a href="#">Product</a></li>
+    <li><a href="#">Integrations</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">Privacy</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 Apex, Inc.</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
